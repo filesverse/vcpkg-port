@@ -1,6 +1,6 @@
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
-  REPO kingmaj0r/filerix
+  REPO filesverse/filerix
   REF v1.0.3
   SHA512 2a139ecac6b7251aa6b608100f9bc195309e8f499a642bac7f51fa9a49cce1cbad23a7dd6340d8e74adcf7c030196cc475ed7518f129d8291126d9b5ee2295e2
 )
