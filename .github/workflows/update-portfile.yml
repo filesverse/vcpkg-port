@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [update-portfile]
 
+permissions:
+  contents: write
+
 jobs:
   update-portfile:
     runs-on: ubuntu-latest
