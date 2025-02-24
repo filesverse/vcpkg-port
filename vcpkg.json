@@ -1,6 +1,6 @@
 {
   "name": "filerix",
-  	.0.3",
+  "version": "1.0.3",
   "description": "A fast and lightweight file manager library.",
   "dependencies": [
     {
