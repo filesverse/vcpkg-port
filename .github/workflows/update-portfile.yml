@@ -1,36 +1,49 @@
-name: Update Portfile on New Release
+name: Update Portfile
 
 on:
-  repository_dispatch:
-    types: [update-vcpkg-port]
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  pull-requests: write
+  workflow_run:
+    workflows: ["Trigger vcpkg-port Update"]
+    types:
+      - completed
 
 jobs:
   update-portfile:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Download trigger artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trigger
+
+      - name: Checkout vcpkg-port repository
         uses: actions/checkout@v4
+        with:
+          repository: filesverse/vcpkg-port
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch latest Filerix release
-        id: get_release
-        run: |
-          latest_tag=$(curl -s "https://api.github.com/repos/filesverse/filerix/releases" | jq -r 'map(select(.prerelease == false or .prerelease == true)) | first | .tag_name')
-          echo "Latest release: $latest_tag"
-          echo "TAG=$latest_tag" >> $GITHUB_ENV
-
-      - name: Update portfile.cmake
-        run: |
-          sed -i "s/REF v[0-9]\+\.[0-9]\+\.[0-9]\+/REF $TAG/" ports/filerix/portfile.cmake
-          sed -i "s|SHA512 .*|SHA512 $(curl -L https://github.com/filesverse/filerix/archive/refs/tags/$TAG.tar.gz | sha512sum | cut -d ' ' -f1)|" ports/filerix/portfile.cmake
-
-      - name: Commit and push changes
+      - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update Filerix portfile to $TAG"
+
+      - name: Get latest release tag
+        run: |
+          latest_tag=$(curl -s "https://api.github.com/repos/filesverse/filerix/releases" | jq -r '[.[] | select(.prerelease == false)] | first | .tag_name')
+          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
+
+      - name: Compute SHA512 checksum
+        run: |
+          sha512_hash=$(curl -L "https://github.com/filesverse/filerix/archive/refs/tags/${LATEST_TAG}.tar.gz" | sha512sum | awk '{print $1}')
+          echo "SHA512_HASH=$sha512_hash" >> $GITHUB_ENV
+
+      - name: Update Portfile and vcpkg.json
+        run: |
+          sed -i "s|REF v[0-9.]*|REF ${LATEST_TAG}|" portfile.cmake
+          sed -i "s|SHA512 [a-f0-9]*|SHA512 ${SHA512_HASH}|" portfile.cmake
+          sed -i 's|\"version\": \"[0-9.]*\"|\"version\": \"'"${LATEST_TAG#v}"'\"|' vcpkg.json
+
+      - name: Commit and Push Changes
+        run: |
+          git add portfile.cmake vcpkg.json
+          git commit -m "Update Portfile and vcpkg.json to ${LATEST_TAG}"
           git push
