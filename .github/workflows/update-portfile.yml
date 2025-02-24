@@ -36,7 +36,7 @@ jobs:
         run: |
           perl -i -pe "s|REF v?\d+\.\d+\.\d+|REF ${LATEST_TAG}|" portfile.cmake
           perl -i -pe "s|SHA512 [a-f0-9]+|SHA512 ${SHA512_HASH}|" portfile.cmake
-          perl -i -pe "s|(\"version\": \")\d+\.\d+\.\d+(\".*)|\1${LATEST_TAG#v}\2|" vcpkg.json
+          sed -i "s|\"version\": \"[0-9]\+\.[0-9]\+\.[0-9]\+\"|\"version\": \"${LATEST_TAG#v}\"|" vcpkg.json
 
       - name: Commit and Push Changes
         run: |
