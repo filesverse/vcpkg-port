@@ -1,10 +1,8 @@
 name: Update Portfile
 
 on:
-  workflow_run:
-    workflows: ["Trigger vcpkg-port Update"]
-    types:
-      - completed
+  repository_dispatch:
+    types: [update-portfile]
 
 jobs:
   update-portfile:
