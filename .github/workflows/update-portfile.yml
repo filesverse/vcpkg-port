@@ -1,0 +1,36 @@
+name: Update Portfile on New Release
+
+on:
+  repository_dispatch:
+    types: [update-vcpkg-port]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-portfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest Filerix release
+        id: get_release
+        run: |
+          latest_tag=$(curl -s "https://api.github.com/repos/filesverse/filerix/releases" | jq -r 'map(select(.prerelease == false or .prerelease == true)) | first | .tag_name')
+          echo "Latest release: $latest_tag"
+          echo "TAG=$latest_tag" >> $GITHUB_ENV
+
+      - name: Update portfile.cmake
+        run: |
+          sed -i "s/REF v[0-9]\+\.[0-9]\+\.[0-9]\+/REF $TAG/" ports/filerix/portfile.cmake
+          sed -i "s|SHA512 .*|SHA512 $(curl -L https://github.com/filesverse/filerix/archive/refs/tags/$TAG.tar.gz | sha512sum | cut -d ' ' -f1)|" ports/filerix/portfile.cmake
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update Filerix portfile to $TAG"
+          git push
