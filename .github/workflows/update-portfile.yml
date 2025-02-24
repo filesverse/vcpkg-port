@@ -8,11 +8,6 @@ jobs:
   update-portfile:
     runs-on: ubuntu-latest
     steps:
-      - name: Download trigger artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: trigger
-
       - name: Checkout vcpkg-port repository
         uses: actions/checkout@v4
         with:
