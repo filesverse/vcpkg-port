@@ -13,3 +13,4 @@ vcpkg_cmake_configure(
 vcpkg_cmake_install()
 
 vcpkg_cmake_config_fixup(PACKAGE_NAME "filerix")
+vcpkg_fixup_pkgconfig()
