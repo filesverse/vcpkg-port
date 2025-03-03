@@ -1,8 +1,8 @@
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO filesverse/filerix
-  REF v1.0.6-test
-  SHA512 7baa732ebf4b99e044b49ef9e6856fad89f14a8a10bb995e9f7d6d6d28cdda9575eb966110e6350c8c3e0ab628cabf34891741f49dae00783bb2ba430fbd3d1b
+  REF v1.0.6-test-test
+  SHA512 0445a9c4b8848982de350bae1c9d890b0f2d3f27733a10798e99f9bdcac494689005ec55f03c53d2264a6c7533b18bf424b51127f3a3670ec0974dbc192dd576
 )
 
 vcpkg_cmake_configure(
